@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/drawable/bg_7.xml" value="0.2169230769230769" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/activity_main.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/activity_permission.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/fragment_device_admin.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/fragment_drawer_permission.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/fragment_notification.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/icon_touch.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/popup_window_dashboard.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/screen_splash.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/xml/admin_options_list.xml" value="0.1" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>
