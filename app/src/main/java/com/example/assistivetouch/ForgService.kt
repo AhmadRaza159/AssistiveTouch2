@@ -475,9 +475,9 @@ class ForgService : Service() {
             }
             "flashlight" -> {
                     if (!isFlashlightOn) {
-                        return Pair(resources.getDrawable(R.drawable.flash_off), "Flash")
+                        return Pair(resources.getDrawable(R.drawable.flash_off), "Flashlight")
                     } else {
-                        return Pair(resources.getDrawable(R.drawable.flash), "Flash")
+                        return Pair(resources.getDrawable(R.drawable.flash), "Flashlight")
                     }
 
 
