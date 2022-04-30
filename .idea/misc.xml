@@ -4,10 +4,15 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/drawable/bg_7.xml" value="0.2169230769230769" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/drawable/control_bg.xml" value="0.2169230769230769" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/drawable/tools_bg.xml" value="0.2046875" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/activity_edit_apps.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/activity_main.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/activity_permission.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/fragment_device_admin.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/fragment_drawer_permission.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/fragment_edit_main.xml" value="0.19010416666666666" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/fragment_edit_setting.xml" value="0.19010416666666666" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/fragment_notification.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/icon_touch.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/popup_window_dashboard.xml" value="0.20416666666666666" />

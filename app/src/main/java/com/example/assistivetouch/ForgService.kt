@@ -1,5 +1,6 @@
 package com.example.assistivetouch
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.Intent
@@ -8,56 +9,91 @@ import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RequiresApi
 import android.app.PendingIntent
+import android.app.admin.DevicePolicyManager
 import android.bluetooth.BluetoothManager
+import android.content.ComponentName
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.PixelFormat
+import android.graphics.drawable.Drawable
+import android.hardware.camera2.CameraManager
+import android.location.LocationManager
+import android.media.AudioManager
+import android.net.wifi.WifiManager
 import android.provider.Settings
+import android.telephony.TelephonyManager
 import android.util.DisplayMetrics
 import android.view.*
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.requestPermissions
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
 import com.example.assistivetouch.databinding.IconTouchBinding
 import com.example.assistivetouch.databinding.PopupWindowDashboardBinding
 
 
-class ForgService: Service() {
-    companion object{
-        var cntx:Context?=null
+class ForgService : Service() {
+    companion object {
+        var cntx: Context? = null
+        var popUp: PopupWindow? = null
+        var isFlashlightOn = false
+        var bFlag=false
+    }
+
+    var torchCallback: CameraManager.TorchCallback = @RequiresApi(Build.VERSION_CODES.P)
+    object : CameraManager.TorchCallback() {
+        override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
+            super.onTorchModeChanged(cameraId, enabled)
+            isFlashlightOn = enabled
+            updateUi()
+        }
     }
     private var mNM: NotificationManager? = null
     private var winManager: WindowManager? = null
     private var winParam: WindowManager.LayoutParams? = null
     private var movingCounter = 0
+
     private var isMoving = false
-    lateinit var bindingTouch:IconTouchBinding
-    lateinit var bindingPopup:PopupWindowDashboardBinding
-    lateinit var utilObj:Utils
+    lateinit var bindingTouch: IconTouchBinding
+    lateinit var bindingPopup: PopupWindowDashboardBinding
+    lateinit var utilObj: Utils
     private var displayMetrics: DisplayMetrics? = null
     private var touchIcon: View? = null
     private var popUpDashBoard: View? = null
-    private var popUp: PopupWindow? = null
 
     override fun onBind(p0: Intent?): IBinder? {
         return null
     }
 
+
     @SuppressLint("ClickableViewAccessibility")
-    @RequiresApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate() {
         super.onCreate()
-        cntx=this
+        cntx = this
 
 
         mNM = getSystemService(NOTIFICATION_SERVICE) as NotificationManager?
-        var notiIntent :PendingIntent?=null
+        var notiIntent: PendingIntent? = null
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             notiIntent =
-                PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_MUTABLE)
+                PendingIntent.getActivity(
+                    this,
+                    0,
+                    Intent(this, MainActivity::class.java),
+                    PendingIntent.FLAG_MUTABLE
+                )
         } else {
             notiIntent =
-                PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_ONE_SHOT)
+                PendingIntent.getActivity(
+                    this,
+                    0,
+                    Intent(this, MainActivity::class.java),
+                    PendingIntent.FLAG_ONE_SHOT
+                )
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -118,19 +154,21 @@ class ForgService: Service() {
             }
         }
         popUp?.setOnDismissListener {
-            Toast.makeText(cntx,"ahahaha",Toast.LENGTH_SHORT).show()
+            Toast.makeText(cntx, "ahahaha", Toast.LENGTH_SHORT).show()
         }
         popUp?.isFocusable = true
         popUp?.isTouchable = true
         touchIcon!!.setOnClickListener {
-            Toast.makeText(cntx,"ahahaha",Toast.LENGTH_SHORT).show()
-            utilObj= Utils()
-            bindingPopup.atouchFavouriteDashboard.visibility=View.GONE
-            bindingPopup.atouchSettingDashboard.visibility=View.GONE
-            bindingPopup.atouchMainDashboard.visibility=View.VISIBLE
+            val bluetoothMm = cntx?.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+            bFlag = bluetoothMm.adapter.isEnabled
+            updateUi()
+            utilObj = Utils()
+            bindingPopup.atouchFavouriteDashboard.visibility = View.GONE
+            bindingPopup.atouchSettingDashboard.visibility = View.GONE
+            bindingPopup.atouchMainDashboard.visibility = View.VISIBLE
 
-            winParam!!.x = (displayMetrics!!.widthPixels / 2 )
-            winParam!!.y = (displayMetrics!!.heightPixels / 2 )
+            winParam!!.x = (displayMetrics!!.widthPixels / 2)
+            winParam!!.y = (displayMetrics!!.heightPixels / 2)
             winManager?.updateViewLayout(touchIcon, winParam)
             popUp?.showAtLocation(touchIcon, Gravity.CENTER, 0, 0)
 
@@ -162,87 +200,315 @@ class ForgService: Service() {
             }
             return@setOnTouchListener isMoving
         }
+        val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        cameraManager.registerTorchCallback(torchCallback, null)
+
         clickMethods()
     }
-    private fun utilsCaller(code:String){
-        when(code){
-            "wifi"->{
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun utilsCaller(code: String) {
+        when (code) {
+            "wifi" -> {
                 utilObj.wifi()
             }
-            "data"->{
+            "data" -> {
                 utilObj.data()
             }
-            "bluetooth"->{
+            "bluetooth" -> {
                 utilObj.bluetooth()
             }
-            "portrait"->{
+            "portrait" -> {
                 utilObj.portrait()
             }
-            "location"->{
+            "location" -> {
                 utilObj.location()
             }
-            "flash"->{
+            "flashlight" -> {
                 utilObj.flash()
             }
-            "airplane"->{
+            "airplane" -> {
                 utilObj.airplane()
             }
-            "soundup"->{
+            "soundup" -> {
                 utilObj.soundUp()
             }
-            "sounddown"->{
+            "sounddown" -> {
                 utilObj.soundDown()
             }
-            "lock"->{
+            "lock" -> {
                 utilObj.lock()
             }
-            "home"->{
+            "home" -> {
                 utilObj.home()
             }
-            "boost"->{
+            "boost" -> {
                 utilObj.boost()
             }
-            "favorite"->{
-                bindingPopup.atouchFavouriteDashboard.visibility=View.VISIBLE
-                bindingPopup.atouchSettingDashboard.visibility=View.GONE
-                bindingPopup.atouchMainDashboard.visibility=View.GONE
+            "favorite" -> {
+                bindingPopup.atouchFavouriteDashboard.visibility = View.VISIBLE
+                bindingPopup.atouchSettingDashboard.visibility = View.GONE
+                bindingPopup.atouchMainDashboard.visibility = View.GONE
             }
-            "utils"->{
-                bindingPopup.atouchFavouriteDashboard.visibility=View.GONE
-                bindingPopup.atouchSettingDashboard.visibility=View.VISIBLE
-                bindingPopup.atouchMainDashboard.visibility=View.GONE
+            "setting" -> {
+                bindingPopup.atouchFavouriteDashboard.visibility = View.GONE
+                bindingPopup.atouchSettingDashboard.visibility = View.VISIBLE
+                bindingPopup.atouchMainDashboard.visibility = View.GONE
+            }
+            "none" -> {
+
             }
 
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.P)
     private fun clickMethods() {
+        val spat = this.getSharedPreferences(
+            "spat", Context.MODE_PRIVATE
+        )
         bindingPopup.main1.setOnClickListener {
-
+            spat.getString("main1", "none")?.let { it1 -> utilsCaller(it1) }
+            updateUi()
         }
         bindingPopup.main2.setOnClickListener {
-
+            spat.getString("main2", "none")?.let { it1 -> utilsCaller(it1) }
+            updateUi()
         }
         bindingPopup.main3.setOnClickListener {
-
+            spat.getString("main3", "none")?.let { it1 -> utilsCaller(it1) }
+            updateUi()
         }
         bindingPopup.main4.setOnClickListener {
-
+            spat.getString("main4", "none")?.let { it1 -> utilsCaller(it1) }
+            updateUi()
         }
         bindingPopup.main5.setOnClickListener {
-
+            spat.getString("main5", "none")?.let { it1 -> utilsCaller(it1) }
+            updateUi()
         }
         bindingPopup.main6.setOnClickListener {
-
+            spat.getString("main6", "none")?.let { it1 -> utilsCaller(it1) }
+            updateUi()
         }
         bindingPopup.main7.setOnClickListener {
-
+            spat.getString("main7", "none")?.let { it1 -> utilsCaller(it1) }
+            updateUi()
         }
         bindingPopup.main8.setOnClickListener {
-
+            spat.getString("main8", "none")?.let { it1 -> utilsCaller(it1) }
+            updateUi()
+        }
+        //////////
+        bindingPopup.setting1.setOnClickListener {
+            spat.getString("setting1", "none")?.let { it1 -> utilsCaller(it1) }
+            updateUi()
+        }
+        bindingPopup.setting2.setOnClickListener {
+            spat.getString("setting2", "none")?.let { it1 -> utilsCaller(it1) }
+            updateUi()
+        }
+        bindingPopup.setting3.setOnClickListener {
+            spat.getString("setting3", "none")?.let { it1 -> utilsCaller(it1) }
+            updateUi()
+        }
+        bindingPopup.setting4.setOnClickListener {
+            spat.getString("setting4", "none")?.let { it1 -> utilsCaller(it1) }
+            updateUi()
+        }
+        bindingPopup.setting5.setOnClickListener {
+            spat.getString("setting5", "none")?.let { it1 -> utilsCaller(it1) }
+            updateUi()
+        }
+        bindingPopup.setting6.setOnClickListener {
+            spat.getString("setting6", "none")?.let { it1 -> utilsCaller(it1) }
+            updateUi()
+        }
+        bindingPopup.setting7.setOnClickListener {
+            spat.getString("setting7", "none")?.let { it1 -> utilsCaller(it1) }
+            updateUi()
+        }
+        bindingPopup.setting8.setOnClickListener {
+            spat.getString("setting8", "none")?.let { it1 -> utilsCaller(it1) }
+            updateUi()
         }
 
+    }
 
+    @RequiresApi(Build.VERSION_CODES.P)
+    public fun updateUi() {
+        val spat = this.getSharedPreferences(
+            "spat", Context.MODE_PRIVATE
+        )
+        bindingPopup.main1Img.setImageDrawable(
+            spat.getString("main1", "none")?.let { getUtilData(it).first })
+        bindingPopup.main1Txt.text = spat.getString("main1", "none")?.let { getUtilData(it).second }
+        bindingPopup.main2Img.setImageDrawable(
+            spat.getString("main2", "none")?.let { getUtilData(it).first })
+        bindingPopup.main2Txt.text = spat.getString("main2", "none")?.let { getUtilData(it).second }
+        bindingPopup.main3Img.setImageDrawable(
+            spat.getString("main3", "none")?.let { getUtilData(it).first })
+        bindingPopup.main3Txt.text = spat.getString("main3", "none")?.let { getUtilData(it).second }
+        bindingPopup.main4Img.setImageDrawable(
+            spat.getString("main4", "none")?.let { getUtilData(it).first })
+        bindingPopup.main4Txt.text = spat.getString("main4", "none")?.let { getUtilData(it).second }
+        bindingPopup.main5Img.setImageDrawable(
+            spat.getString("main5", "none")?.let { getUtilData(it).first })
+        bindingPopup.main5Txt.text = spat.getString("main5", "none")?.let { getUtilData(it).second }
+        bindingPopup.main6Img.setImageDrawable(
+            spat.getString("main6", "none")?.let { getUtilData(it).first })
+        bindingPopup.main6Txt.text = spat.getString("main6", "none")?.let { getUtilData(it).second }
+        bindingPopup.main7Img.setImageDrawable(
+            spat.getString("main7", "none")?.let { getUtilData(it).first })
+        bindingPopup.main7Txt.text = spat.getString("main7", "none")?.let { getUtilData(it).second }
+        bindingPopup.main8Img.setImageDrawable(
+            spat.getString("main8", "none")?.let { getUtilData(it).first })
+        bindingPopup.main8Txt.text = spat.getString("main8", "none")?.let { getUtilData(it).second }
+        //
+        bindingPopup.setting1Img.setImageDrawable(
+            spat.getString("setting1", "none")?.let { getUtilData(it).first })
+        bindingPopup.setting1Txt.text =
+            spat.getString("setting1", "none")?.let { getUtilData(it).second }
+        bindingPopup.setting2Img.setImageDrawable(
+            spat.getString("setting2", "none")?.let { getUtilData(it).first })
+        bindingPopup.setting2Txt.text =
+            spat.getString("setting2", "none")?.let { getUtilData(it).second }
+        bindingPopup.setting3Img.setImageDrawable(
+            spat.getString("setting3", "none")?.let { getUtilData(it).first })
+        bindingPopup.setting3Txt.text =
+            spat.getString("setting3", "none")?.let { getUtilData(it).second }
+        bindingPopup.setting4Img.setImageDrawable(
+            spat.getString("setting4", "none")?.let { getUtilData(it).first })
+        bindingPopup.setting4Txt.text =
+            spat.getString("setting4", "none")?.let { getUtilData(it).second }
+        bindingPopup.setting5Img.setImageDrawable(
+            spat.getString("setting5", "none")?.let { getUtilData(it).first })
+        bindingPopup.setting5Txt.text =
+            spat.getString("setting5", "none")?.let { getUtilData(it).second }
+        bindingPopup.setting6Img.setImageDrawable(
+            spat.getString("setting6", "none")?.let { getUtilData(it).first })
+        bindingPopup.setting6Txt.text =
+            spat.getString("setting6", "none")?.let { getUtilData(it).second }
+        bindingPopup.setting7Img.setImageDrawable(
+            spat.getString("setting7", "none")?.let { getUtilData(it).first })
+        bindingPopup.setting7Txt.text =
+            spat.getString("setting7", "none")?.let { getUtilData(it).second }
+        bindingPopup.setting8Img.setImageDrawable(
+            spat.getString("setting8", "none")?.let { getUtilData(it).first })
+        bindingPopup.setting8Txt.text =
+            spat.getString("setting8", "none")?.let { getUtilData(it).second }
+
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.P)
+    private fun getUtilData(code: String): Pair<Drawable, String> {
+        when (code) {
+            "wifi" -> {
+                val wifiManager = cntx?.getSystemService(Context.WIFI_SERVICE) as WifiManager
+                if (wifiManager.isWifiEnabled) {
+                    return Pair(resources.getDrawable(R.drawable.wifi), "WiFi")
+                } else {
+                    return Pair(resources.getDrawable(R.drawable.wifi_off), "WiFi")
+                }
+            }
+            "bluetooth" -> {
+
+                if (bFlag) {
+                    return Pair(resources.getDrawable(R.drawable.bluetooth), "Bluetooth")
+
+                } else {
+                    return Pair(resources.getDrawable(R.drawable.bluetooth_off), "Bluetooth")
+
+                }
+            }
+            "data" -> {
+                val networkManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+                var returnValue=Pair(resources.getDrawable(R.drawable.data_off), "Data")
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.READ_PHONE_STATE
+                    ) != PackageManager.PERMISSION_GRANTED
+                )
+                    if (networkManager.isDataEnabled) {
+                        returnValue= Pair(resources.getDrawable(R.drawable.data), "Data")
+                    } else {
+                        returnValue= Pair(resources.getDrawable(R.drawable.data_off), "Data")
+                    }
+                return returnValue
+            }
+            "portrait" -> {
+                if (Settings.System.getInt(
+                        contentResolver,
+                        Settings.System.ACCELEROMETER_ROTATION,
+                        0
+                    ) == 1
+                ) {
+                    return Pair(resources.getDrawable(R.drawable.portrait), "Portrait")
+
+                } else {
+                    return Pair(resources.getDrawable(R.drawable.portrait_off), "Portrait")
+
+                }
+            }
+            "location" -> {
+                val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                if (locationManager.isLocationEnabled) {
+                    return Pair(resources.getDrawable(R.drawable.location), "Location")
+                } else {
+                    return Pair(resources.getDrawable(R.drawable.location_off), "Location")
+                }
+            }
+            "soundup" -> {
+                return Pair(resources.getDrawable(R.drawable.sound_up), "Sound Up")
+            }
+            "airplane" -> {
+                if (Settings.Global.getInt(
+                        contentResolver,
+                        Settings.Global.AIRPLANE_MODE_ON, 0
+                    ) == 1
+                ) {
+                    return Pair(resources.getDrawable(R.drawable.airplane), "Airplane")
+                } else {
+                    return Pair(resources.getDrawable(R.drawable.airplane_off), "Airplane")
+                }
+            }
+            "flashlight" -> {
+                    if (!isFlashlightOn) {
+                        return Pair(resources.getDrawable(R.drawable.flash_off), "Flash")
+                    } else {
+                        return Pair(resources.getDrawable(R.drawable.flash), "Flash")
+                    }
+
+
+
+
+            }
+            "sounddown" -> {
+                return Pair(resources.getDrawable(R.drawable.sound_down), "Sound Down")
+            }
+            "boost" -> {
+                return Pair(resources.getDrawable(R.drawable.boost), "Boost")
+            }
+            "home" -> {
+                return Pair(resources.getDrawable(R.drawable.home), "Home")
+            }
+            "lock" -> {
+                return Pair(resources.getDrawable(R.drawable.lock), "Lock")
+            }
+            "fav" -> {
+                return Pair(resources.getDrawable(R.drawable.heart), "Favorite")
+            }
+            "setting" -> {
+                return Pair(resources.getDrawable(R.drawable.setting), "Settings")
+            }
+            "none" -> {
+                return Pair(resources.getDrawable(R.drawable.none), "")
+            }
+            else -> {
+                return Pair(resources.getDrawable(R.drawable.none), "")
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -250,49 +516,167 @@ class ForgService: Service() {
         return super.onStartCommand(intent, flags, startId)
 
     }
-    class Utils(){
-        fun home(){
 
-        }
-        fun lock(){
-            Log.d("mydata", "Reach wifi")
-        }
-        fun wifi(){
-            val astvTchIntent = Intent(Settings.ACTION_WIFI_SETTINGS)
-            astvTchIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            cntx?.startActivity(astvTchIntent)        }
-        fun data(){
-            Log.d("mydata", "Reach wifi")
-        }
-        fun portrait(){
-            Log.d("mydata", "Reach wifi")
-        }
-        fun location(){
-            Log.d("mydata", "Reach wifi")
-        }
-        fun airplane(){
-            Log.d("mydata", "Reach wifi")
-        }
-        fun bluetooth(){
-            val bluetoothM= cntx?.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-            if (bluetoothM.adapter.isEnabled) {
-                bluetoothM.adapter.disable()
 
-            } else {
-                bluetoothM.adapter.enable()
+    class Utils() {
+        private var isFlashlightOn = false
+
+        private val torchCallback: CameraManager.TorchCallback = @RequiresApi(Build.VERSION_CODES.M)
+        object : CameraManager.TorchCallback() {
+            override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
+                super.onTorchModeChanged(cameraId, enabled)
+                isFlashlightOn = enabled
             }
         }
-        fun flash(){
-            Log.d("mydata", "Reach wifi")
+
+        fun home() {
+            popUp?.dismiss()
+            val intent = Intent(Intent.ACTION_MAIN)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            intent.addCategory(Intent.CATEGORY_HOME)
+            cntx?.startActivity(intent)
         }
-        fun boost(){
-            Log.d("mydata", "Reach wifi")
+
+        fun lock() {
+            var deviceManger =
+                cntx?.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            deviceManger.lockNow()
         }
-        fun soundUp(){
-            Log.d("mydata", "Reach wifi")
+
+        fun wifi() {
+            val astvTchIntent = Intent(Settings.ACTION_WIFI_SETTINGS)
+            astvTchIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            cntx?.startActivity(astvTchIntent)
         }
-        fun soundDown(){
-            Log.d("mydata", "Reach wifi")
+
+        fun data() {
+            popUp?.dismiss()
+            try {
+                val intent = Intent()
+                intent.component = ComponentName(
+                    "com.android.settings",
+                    "com.android.settings.Settings\$DataUsageSummaryActivity"
+                )
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                cntx?.startActivity(intent)
+            } catch (e: Exception) {
+                val intent = Intent(Settings.ACTION_DATA_ROAMING_SETTINGS)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                cntx?.startActivity(intent)
+            }
+
+        }
+
+        @RequiresApi(Build.VERSION_CODES.M)
+        fun portrait() {
+            if (Settings.System.canWrite(cntx)) {
+                if (Settings.System.getInt(
+                        cntx?.contentResolver,
+                        Settings.System.ACCELEROMETER_ROTATION,
+                        0
+                    ) == 1
+                ) {
+                    Settings.System.putInt(
+                        cntx?.contentResolver,
+                        Settings.System.ACCELEROMETER_ROTATION,
+                        0
+                    )
+                } else {
+                    Settings.System.putInt(
+                        cntx?.contentResolver,
+                        Settings.System.ACCELEROMETER_ROTATION,
+                        1
+                    )
+                }
+            } else {
+                val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                cntx?.startActivity(intent)
+            }
+        }
+
+        fun location() {
+            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            cntx?.startActivity(intent)
+            popUp?.dismiss()
+        }
+
+        fun airplane() {
+            val panelIntent = Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS)
+            panelIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            cntx?.startActivity(panelIntent)
+            popUp?.dismiss()
+        }
+
+        fun bluetooth() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
+                if (cntx?.let {
+                        ContextCompat.checkSelfPermission(
+                            it,
+                            Manifest.permission.BLUETOOTH_CONNECT
+                        )
+                    } == PackageManager.PERMISSION_GRANTED){
+                    val bluetoothM = cntx?.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+                    if (bluetoothM.adapter.isEnabled) {
+                        bFlag=false
+                        bluetoothM.adapter.disable()
+                    } else {
+                        bFlag=true
+                        bluetoothM.adapter.enable()
+                    }
+                }
+                else{
+                    Toast.makeText(cntx,"Bluetooth nearby permission required",Toast.LENGTH_SHORT).show()
+                }
+            }
+            else{
+                val bluetoothM = cntx?.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+                if (bluetoothM.adapter.isEnabled) {
+                    bFlag=false
+                    bluetoothM.adapter.disable()
+
+                } else {
+                    bFlag=true
+                    bluetoothM.adapter.enable()
+                }
+
+            }
+
+        }
+
+        @RequiresApi(Build.VERSION_CODES.M)
+        fun flash() {
+            val cameraManager = cntx?.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            cameraManager.registerTorchCallback(torchCallback, null)
+            if (cntx?.packageManager?.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH) == true) {
+                if (!isFlashlightOn) {
+                    cameraManager.setTorchMode(cameraManager.cameraIdList[0], true)
+                } else {
+                    cameraManager.setTorchMode(cameraManager.cameraIdList[0], false)
+                }
+            }
+        }
+
+        fun boost() {
+        }
+
+        fun soundUp() {
+            val audioManager = cntx?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            audioManager.setStreamVolume(
+                AudioManager.STREAM_MUSIC,
+                audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) + 1, 1
+            )
+
+        }
+
+        fun soundDown() {
+            val audioManager = cntx?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            audioManager.setStreamVolume(
+                AudioManager.STREAM_MUSIC,
+                audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) - 1, 1
+            )
+
         }
 
 
