@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".EditIconActivity">
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout3"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/choose_icon_bg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Choose Floating Icon"
+            android:textColor="@color/white"
+            android:textSize="16dp"
+            android:textStyle="bold" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="56dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/relativeLayout3">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            app:cardBackgroundColor="#685978EC"
+            app:cardCornerRadius="5dp">
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/ic_touch_01"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_01" />
+
+                        <ImageView
+                            android:id="@+id/ic_touch_02"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_02" />
+
+                        <ImageView
+                            android:id="@+id/ic_touch_03"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_03" />
+
+                        <ImageView
+                            android:id="@+id/ic_touch_04"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_04" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/ic_touch_05"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_05" />
+
+                        <ImageView
+                            android:id="@+id/ic_touch_06"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_06" />
+
+                        <ImageView
+                            android:id="@+id/ic_touch_07"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_07" />
+
+                        <ImageView
+                            android:id="@+id/ic_touch_08"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_08" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/ic_touch_09"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_09" />
+
+                        <ImageView
+                            android:id="@+id/ic_touch_10"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_10" />
+
+                        <ImageView
+                            android:id="@+id/ic_touch_11"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_11" />
+
+                        <ImageView
+                            android:id="@+id/ic_touch_12"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_12" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/ic_touch_13"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_13" />
+
+                        <ImageView
+                            android:id="@+id/ic_touch_14"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_14" />
+
+                        <ImageView
+                            android:id="@+id/ic_touch_15"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_15" />
+
+                        <ImageView
+                            android:id="@+id/ic_touch_16"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_16" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/ic_touch_17"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_17" />
+
+                        <ImageView
+                            android:id="@+id/ic_touch_18"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_18" />
+
+                        <ImageView
+                            android:id="@+id/ic_touch_19"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_19" />
+
+                        <ImageView
+                            android:id="@+id/ic_touch_20"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_20" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/ic_touch_21"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_21" />
+
+                        <ImageView
+                            android:id="@+id/ic_touch_22"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="15dp"
+                            android:src="@drawable/ic_touch_22" />
+
+
+                    </LinearLayout>
+
+
+                </LinearLayout>
+            </ScrollView>
+        </androidx.cardview.widget.CardView>
+    </RelativeLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

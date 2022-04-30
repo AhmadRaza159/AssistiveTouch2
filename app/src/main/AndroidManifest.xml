@@ -24,6 +24,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AssistiveTouch">
         <activity
+            android:name=".AddNewAppActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SettingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EditIconActivity"
+            android:exported="false" />
+        <activity
             android:name=".EditAppsActivity"
             android:exported="false" />
 

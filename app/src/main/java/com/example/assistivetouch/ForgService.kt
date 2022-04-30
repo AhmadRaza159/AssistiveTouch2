@@ -14,6 +14,7 @@ import android.bluetooth.BluetoothManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
@@ -33,6 +34,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
 import com.example.assistivetouch.databinding.IconTouchBinding
 import com.example.assistivetouch.databinding.PopupWindowDashboardBinding
+import com.google.gson.Gson
 
 
 class ForgService : Service() {
@@ -42,6 +44,7 @@ class ForgService : Service() {
         var isFlashlightOn = false
         var bFlag=false
     }
+    private var gson = Gson()
 
     var torchCallback: CameraManager.TorchCallback = @RequiresApi(Build.VERSION_CODES.P)
     object : CameraManager.TorchCallback() {
@@ -68,6 +71,152 @@ class ForgService : Service() {
         return null
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.getStringExtra("word")=="open"){
+            winParam!!.x = (displayMetrics!!.widthPixels / 2)
+            winParam!!.y = (displayMetrics!!.heightPixels / 2)
+            winManager?.updateViewLayout(touchIcon, winParam)
+            popUp?.showAtLocation(touchIcon, Gravity.CENTER, 0, 0)
+        }
+        checkIcon()
+        return super.onStartCommand(intent, flags, startId)
+
+    }
+
+    private fun checkIcon() {
+        val spat = this.getSharedPreferences(
+            "spat", Context.MODE_PRIVATE
+        )
+        when(spat.getString("icon","nil")){
+            "1"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_01))
+            }
+            "2"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_02))
+            }
+            "3"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_03))
+            }
+            "4"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_04))
+            }
+            "5"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_05))
+            }
+            "6"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_06))
+            }
+            "7"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_07))
+            }
+            "8"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_08))
+            }
+            "9"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_09))
+            }
+            "10"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_10))
+            }
+            "11"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_11))
+            }
+            "12"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_12))
+            }
+            "13"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_13))
+            }
+            "14"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_14))
+            }
+            "15"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_15))
+            }
+            "16"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_16))
+            }
+            "17"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_17))
+            }
+            "18"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_18))
+            }
+            "19"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_19))
+            }
+            "20"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_20))
+            }
+            "21"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_21))
+            }
+            "22"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_22))
+            }
+            "nil"->{
+                bindingTouch.touchIconTouch.setImageDrawable(this.getDrawable(R.drawable.ic_touch_01))
+            }
+        }
+
+        if (spat.getInt("op",80)>20){
+            bindingTouch.touchIconTouch.alpha=((spat.getInt("op",80)).toFloat()/100)
+        }
+        else{
+            bindingTouch.touchIconTouch.alpha= ((20.0/100).toFloat())
+        }
+
+        if (spat.getInt("size", 30)>20){
+            val layoutParams = LinearLayout.LayoutParams(
+                spat.getInt("size", 30) * 5,
+                spat.getInt("size", 30) * 5
+            )
+            bindingTouch.touchIconTouch.layoutParams = layoutParams
+        }
+        else{
+            val layoutParams = LinearLayout.LayoutParams(
+                20 * 5,
+                20 * 5
+            )
+            bindingTouch.touchIconTouch.layoutParams = layoutParams
+        }
+
+
+        /////////
+
+        val obj1: ResolveInfo = gson.fromJson(spat.getString("fav1","nil"), ResolveInfo::class.java)
+        bindingPopup.aFavFirstText.text = obj1.loadLabel(packageManager)
+        bindingPopup.aFavFirstImg.setImageDrawable(obj1.loadIcon(packageManager))
+
+        val obj2: ResolveInfo = gson.fromJson(spat.getString("fav2","nil"), ResolveInfo::class.java)
+        bindingPopup.aFavSecondText.text = obj2.loadLabel(packageManager)
+        bindingPopup.aFavSecondImg.setImageDrawable(obj1.loadIcon(packageManager))
+
+        val obj3: ResolveInfo = gson.fromJson(spat.getString("fav3","nil"), ResolveInfo::class.java)
+        bindingPopup.aFavThirdText.text = obj3.loadLabel(packageManager)
+        bindingPopup.aFavThirdImg.setImageDrawable(obj1.loadIcon(packageManager))
+
+        val obj4: ResolveInfo = gson.fromJson(spat.getString("fav4","nil"), ResolveInfo::class.java)
+        bindingPopup.aFavFourthText.text = obj4.loadLabel(packageManager)
+        bindingPopup.aFavFourthImg.setImageDrawable(obj1.loadIcon(packageManager))
+
+        val obj5: ResolveInfo = gson.fromJson(spat.getString("fav5","nil"), ResolveInfo::class.java)
+        bindingPopup.aFavFifthText.text = obj5.loadLabel(packageManager)
+        bindingPopup.aFavFifthImg.setImageDrawable(obj1.loadIcon(packageManager))
+
+        val obj6: ResolveInfo = gson.fromJson(spat.getString("fav6","nil"), ResolveInfo::class.java)
+        bindingPopup.aFavSixthText.text = obj6.loadLabel(packageManager)
+        bindingPopup.aFavSixthImg.setImageDrawable(obj1.loadIcon(packageManager))
+
+        val obj7: ResolveInfo = gson.fromJson(spat.getString("fav7","nil"), ResolveInfo::class.java)
+        bindingPopup.aFavSeventhText.text = obj7.loadLabel(packageManager)
+        bindingPopup.aFavSeventhImg.setImageDrawable(obj1.loadIcon(packageManager))
+
+        val obj8: ResolveInfo = gson.fromJson(spat.getString("fav8","nil"), ResolveInfo::class.java)
+        bindingPopup.aFavEightText.text = obj8.loadLabel(packageManager)
+        bindingPopup.aFavEightImg.setImageDrawable(obj1.loadIcon(packageManager))
+
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.P)
@@ -245,7 +394,7 @@ class ForgService : Service() {
             "boost" -> {
                 utilObj.boost()
             }
-            "favorite" -> {
+            "fav" -> {
                 bindingPopup.atouchFavouriteDashboard.visibility = View.VISIBLE
                 bindingPopup.atouchSettingDashboard.visibility = View.GONE
                 bindingPopup.atouchMainDashboard.visibility = View.GONE
@@ -331,6 +480,24 @@ class ForgService : Service() {
         bindingPopup.setting8.setOnClickListener {
             spat.getString("setting8", "none")?.let { it1 -> utilsCaller(it1) }
             updateUi()
+        }
+        /////
+        bindingPopup.aFavFirst.setOnClickListener {
+            Toast.makeText(cntx,spat.getString("fav1","gggg").toString(),Toast.LENGTH_SHORT).show()
+            if (spat.getString("fav1","nil")!="nil"){
+                val obj1: ResolveInfo = gson.fromJson(spat.getString("fav1","nil"), ResolveInfo::class.java)
+                val intent = packageManager.getLaunchIntentForPackage(obj1.activityInfo.packageName)
+                intent?.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+            }
+            else{
+                val intent = Intent(this, AddNewAppActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                intent.putExtra("code", "fav1")
+                startActivity(intent)
+            }
+            popUp?.dismiss()
+
         }
 
     }
@@ -511,11 +678,6 @@ class ForgService : Service() {
         }
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d("mydata", "Reach OnStartCmnd")
-        return super.onStartCommand(intent, flags, startId)
-
-    }
 
 
     class Utils() {

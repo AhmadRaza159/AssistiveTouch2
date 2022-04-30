@@ -44,6 +44,12 @@ class MainActivity : AppCompatActivity() {
         binding.editAppsButton.setOnClickListener {
             startActivity(Intent(this,EditAppsActivity::class.java))
         }
+        binding.editIconsButton.setOnClickListener {
+            startActivity(Intent(this,EditIconActivity::class.java))
+        }
+        binding.settingsButton.setOnClickListener {
+            startActivity(Intent(this,SettingActivity::class.java))
+        }
     }
 
     @SuppressLint("CommitPrefEdits")
@@ -64,6 +70,20 @@ class MainActivity : AppCompatActivity() {
         )
         val dataEntry: SharedPreferences.Editor=spat.edit()
         if (spat.all.isEmpty()){
+            dataEntry.putInt("size",30)
+            dataEntry.putInt("op",80)
+
+            ///
+            dataEntry.putString("fav1","nil")
+            dataEntry.putString("fav2","nil")
+            dataEntry.putString("fav3","nil")
+            dataEntry.putString("fav4","nil")
+            dataEntry.putString("fav5","nil")
+            dataEntry.putString("fav6","nil")
+            dataEntry.putString("fav7","nil")
+            dataEntry.putString("fav8","nil")
+
+            ///
             dataEntry.putString("main1","none")
             dataEntry.putString("main2","lock")
             dataEntry.putString("main3","none")
@@ -82,14 +102,7 @@ class MainActivity : AppCompatActivity() {
             dataEntry.putString("setting7","flashlight")
             dataEntry.putString("setting8","sounddown")
             ///
-            dataEntry.putString("fav1","none")
-            dataEntry.putString("fav2","none")
-            dataEntry.putString("fav3","none")
-            dataEntry.putString("fav4","none")
-            dataEntry.putString("fav5","none")
-            dataEntry.putString("fav6","none")
-            dataEntry.putString("fav7","none")
-            dataEntry.putString("fav8","none")
+
             ///
 
             dataEntry.apply()
