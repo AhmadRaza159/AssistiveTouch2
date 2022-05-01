@@ -13,6 +13,7 @@ import android.app.admin.DevicePolicyManager
 import android.bluetooth.BluetoothManager
 import android.content.ComponentName
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.PixelFormat
@@ -45,6 +46,7 @@ class ForgService : Service() {
         var bFlag=false
     }
     private var gson = Gson()
+    private var json: String = ""
 
     var torchCallback: CameraManager.TorchCallback = @RequiresApi(Build.VERSION_CODES.P)
     object : CameraManager.TorchCallback() {
@@ -82,7 +84,142 @@ class ForgService : Service() {
         return super.onStartCommand(intent, flags, startId)
 
     }
+    @SuppressLint("ClickableViewAccessibility")
+    @RequiresApi(Build.VERSION_CODES.P)
+    override fun onCreate() {
+        super.onCreate()
+        cntx = this
 
+
+        mNM = getSystemService(NOTIFICATION_SERVICE) as NotificationManager?
+        var notiIntent: PendingIntent? = null
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            notiIntent =
+                PendingIntent.getActivity(
+                    this,
+                    0,
+                    Intent(this, MainActivity::class.java),
+                    PendingIntent.FLAG_MUTABLE
+                )
+        } else {
+            notiIntent =
+                PendingIntent.getActivity(
+                    this,
+                    0,
+                    Intent(this, MainActivity::class.java),
+                    PendingIntent.FLAG_ONE_SHOT
+                )
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val chan = NotificationChannel(
+                "1",
+                "a", NotificationManager.IMPORTANCE_NONE
+            )
+            mNM?.createNotificationChannel(chan)
+        } else {
+            // If earlier version channel ID is not used
+            // https://developer.android.com/reference/android/support/v4/app/NotificationCompat.Builder.html#NotificationCompat.Builder(android.content.Context)
+            ""
+        }
+
+        // Set the info for the views that show in the notification panel.
+
+        val notification: Notification = Notification.Builder(this, "1")
+            .setSmallIcon(R.drawable.ic_launcher_foreground) // the status icon
+            .setWhen(System.currentTimeMillis()) // the time stamp
+            .setContentTitle("Assistive Touch") // the label of the entry
+            .setContentIntent(notiIntent) // The intent to send when the entry is clicked
+            .build()
+        startForeground(159, notification)
+
+        ///////////
+        displayMetrics = DisplayMetrics()
+        touchIcon = LayoutInflater.from(this).inflate(R.layout.icon_touch, null)
+        popUpDashBoard = LayoutInflater.from(this).inflate(R.layout.popup_window_dashboard, null)
+
+        winManager = this.getSystemService(WINDOW_SERVICE) as WindowManager
+        winParam = WindowManager.LayoutParams()
+        winManager?.defaultDisplay?.getMetrics(displayMetrics)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            winParam!!.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+        } else {
+            winParam!!.type = WindowManager.LayoutParams.TYPE_PHONE
+        }
+
+        winParam!!.width = WindowManager.LayoutParams.WRAP_CONTENT
+        winParam!!.height = WindowManager.LayoutParams.WRAP_CONTENT
+        winParam!!.x = displayMetrics!!.widthPixels / 2
+        winParam!!.y = displayMetrics!!.widthPixels / 1
+        winParam!!.gravity = (Gravity.TOP or Gravity.LEFT)
+        winParam!!.format = PixelFormat.RGBA_8888
+        winParam!!.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+        winManager?.addView(touchIcon, winParam)
+        bindingPopup = PopupWindowDashboardBinding.bind(popUpDashBoard!!)
+        bindingTouch = IconTouchBinding.bind(touchIcon!!)
+
+
+        popUp = (displayMetrics?.widthPixels)?.times(0.75)?.let { it1 ->
+            (displayMetrics?.heightPixels)?.times(0.35)?.let { it2 ->
+                PopupWindow(
+                    popUpDashBoard, it1.toInt(),
+                    it2.toInt()
+                )
+            }
+        }
+        popUp?.setOnDismissListener {
+            Toast.makeText(cntx, "ahahaha", Toast.LENGTH_SHORT).show()
+        }
+        popUp?.isFocusable = true
+        popUp?.isTouchable = true
+        touchIcon!!.setOnClickListener {
+            val bluetoothMm = cntx?.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+            bFlag = bluetoothMm.adapter.isEnabled
+            updateUi()
+            utilObj = Utils()
+            bindingPopup.atouchFavouriteDashboard.visibility = View.GONE
+            bindingPopup.atouchSettingDashboard.visibility = View.GONE
+            bindingPopup.atouchMainDashboard.visibility = View.VISIBLE
+
+            winParam!!.x = (displayMetrics!!.widthPixels / 2 - touchIcon!!.width/2)
+            winParam!!.y = (displayMetrics!!.heightPixels / 2 -touchIcon!!.height/2)
+            winManager?.updateViewLayout(touchIcon, winParam)
+            popUp?.showAtLocation(touchIcon, Gravity.CENTER, 0, 0)
+
+        }
+        touchIcon?.setOnTouchListener { _, event ->
+            movingCounter++
+
+            if (event?.action == MotionEvent.ACTION_DOWN) {
+                isMoving = false
+                //flagAnimation = false
+                Log.e("aServiceKey", "Reached in down")
+            }
+            if (event?.action == MotionEvent.ACTION_UP) {
+                Log.e("aServiceKey", "Reached in up")
+                movingCounter = 0
+//                if (flagAnimation)
+//                    setAssitiveTouchViewAlign()
+
+            }
+            if (event?.action == MotionEvent.ACTION_MOVE) {
+                if (movingCounter > 10) {
+//                    flagAnimation = true
+                    Log.e("aServiceKey", "Reached in move")
+                    isMoving = true
+                    winParam!!.x = (event.getRawX() - touchIcon!!.measuredWidth / 2).toInt()
+                    winParam!!.y = (event.getRawY() - touchIcon!!.measuredHeight / 2 - 75).toInt()
+                    winManager?.updateViewLayout(touchIcon, winParam)
+                }
+            }
+            return@setOnTouchListener isMoving
+        }
+        val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        cameraManager.registerTorchCallback(torchCallback, null)
+
+        clickMethods()
+    }
     private fun checkIcon() {
         val spat = this.getSharedPreferences(
             "spat", Context.MODE_PRIVATE
@@ -184,176 +321,48 @@ class ForgService : Service() {
 
         /////////
 
-        val obj1: ResolveInfo = gson.fromJson(spat.getString("fav1","nil"), ResolveInfo::class.java)
-        bindingPopup.aFavFirstText.text = obj1.loadLabel(packageManager)
-        bindingPopup.aFavFirstImg.setImageDrawable(obj1.loadIcon(packageManager))
+        bindingPopup.aFavFirstText.text = getResolveInfoObjDetails("fav1").first
+        bindingPopup.aFavFirstImg.setImageDrawable(getResolveInfoObjDetails("fav1").second)
 
-        val obj2: ResolveInfo = gson.fromJson(spat.getString("fav2","nil"), ResolveInfo::class.java)
-        bindingPopup.aFavSecondText.text = obj2.loadLabel(packageManager)
-        bindingPopup.aFavSecondImg.setImageDrawable(obj1.loadIcon(packageManager))
+        bindingPopup.aFavSecondText.text = getResolveInfoObjDetails("fav2").first
+        bindingPopup.aFavSecondImg.setImageDrawable(getResolveInfoObjDetails("fav2").second)
 
-        val obj3: ResolveInfo = gson.fromJson(spat.getString("fav3","nil"), ResolveInfo::class.java)
-        bindingPopup.aFavThirdText.text = obj3.loadLabel(packageManager)
-        bindingPopup.aFavThirdImg.setImageDrawable(obj1.loadIcon(packageManager))
+        bindingPopup.aFavThirdText.text =getResolveInfoObjDetails("fav3").first
+        bindingPopup.aFavThirdImg.setImageDrawable(getResolveInfoObjDetails("fav3").second)
 
-        val obj4: ResolveInfo = gson.fromJson(spat.getString("fav4","nil"), ResolveInfo::class.java)
-        bindingPopup.aFavFourthText.text = obj4.loadLabel(packageManager)
-        bindingPopup.aFavFourthImg.setImageDrawable(obj1.loadIcon(packageManager))
+        bindingPopup.aFavFourthText.text = getResolveInfoObjDetails("fav4").first
+        bindingPopup.aFavFourthImg.setImageDrawable(getResolveInfoObjDetails("fav4").second)
 
-        val obj5: ResolveInfo = gson.fromJson(spat.getString("fav5","nil"), ResolveInfo::class.java)
-        bindingPopup.aFavFifthText.text = obj5.loadLabel(packageManager)
-        bindingPopup.aFavFifthImg.setImageDrawable(obj1.loadIcon(packageManager))
+        bindingPopup.aFavFifthText.text = getResolveInfoObjDetails("fav5").first
+        bindingPopup.aFavFifthImg.setImageDrawable(getResolveInfoObjDetails("fav5").second)
 
-        val obj6: ResolveInfo = gson.fromJson(spat.getString("fav6","nil"), ResolveInfo::class.java)
-        bindingPopup.aFavSixthText.text = obj6.loadLabel(packageManager)
-        bindingPopup.aFavSixthImg.setImageDrawable(obj1.loadIcon(packageManager))
+        bindingPopup.aFavSixthText.text = getResolveInfoObjDetails("fav6").first
+        bindingPopup.aFavSixthImg.setImageDrawable(getResolveInfoObjDetails("fav6").second)
 
-        val obj7: ResolveInfo = gson.fromJson(spat.getString("fav7","nil"), ResolveInfo::class.java)
-        bindingPopup.aFavSeventhText.text = obj7.loadLabel(packageManager)
-        bindingPopup.aFavSeventhImg.setImageDrawable(obj1.loadIcon(packageManager))
+        bindingPopup.aFavSeventhText.text = getResolveInfoObjDetails("fav7").first
+        bindingPopup.aFavSeventhImg.setImageDrawable(getResolveInfoObjDetails("fav7").second)
 
-        val obj8: ResolveInfo = gson.fromJson(spat.getString("fav8","nil"), ResolveInfo::class.java)
-        bindingPopup.aFavEightText.text = obj8.loadLabel(packageManager)
-        bindingPopup.aFavEightImg.setImageDrawable(obj1.loadIcon(packageManager))
+        bindingPopup.aFavEightText.text = getResolveInfoObjDetails("fav8").first
+        bindingPopup.aFavEightImg.setImageDrawable(getResolveInfoObjDetails("fav8").second)
 
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    @RequiresApi(Build.VERSION_CODES.P)
-    override fun onCreate() {
-        super.onCreate()
-        cntx = this
-
-
-        mNM = getSystemService(NOTIFICATION_SERVICE) as NotificationManager?
-        var notiIntent: PendingIntent? = null
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            notiIntent =
-                PendingIntent.getActivity(
-                    this,
-                    0,
-                    Intent(this, MainActivity::class.java),
-                    PendingIntent.FLAG_MUTABLE
-                )
-        } else {
-            notiIntent =
-                PendingIntent.getActivity(
-                    this,
-                    0,
-                    Intent(this, MainActivity::class.java),
-                    PendingIntent.FLAG_ONE_SHOT
-                )
+    private fun getResolveInfoObjDetails(code: String):Pair<CharSequence,Drawable>{
+        val spat = this.getSharedPreferences(
+            "spat", Context.MODE_PRIVATE
+        )
+        if (spat.getString(code,"nil")!="nil"){
+            json=spat.getString(code,"nil")!!
+            val obj: ResolveInfo = gson.fromJson(json, ResolveInfo::class.java)
+            return Pair(obj.loadLabel(packageManager),obj.loadIcon(packageManager))
+        }
+        else{
+            return Pair("",resources.getDrawable(R.drawable.a_app_box))
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val chan = NotificationChannel(
-                "1",
-                "a", NotificationManager.IMPORTANCE_NONE
-            )
-            mNM?.createNotificationChannel(chan)
-        } else {
-            // If earlier version channel ID is not used
-            // https://developer.android.com/reference/android/support/v4/app/NotificationCompat.Builder.html#NotificationCompat.Builder(android.content.Context)
-            ""
-        }
-
-        // Set the info for the views that show in the notification panel.
-
-        val notification: Notification = Notification.Builder(this, "1")
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // the status icon
-            .setWhen(System.currentTimeMillis()) // the time stamp
-            .setContentTitle("Assistive Touch") // the label of the entry
-            .setContentIntent(notiIntent) // The intent to send when the entry is clicked
-            .build()
-        startForeground(159, notification)
-
-        ///////////
-        displayMetrics = DisplayMetrics()
-        touchIcon = LayoutInflater.from(this).inflate(R.layout.icon_touch, null)
-        popUpDashBoard = LayoutInflater.from(this).inflate(R.layout.popup_window_dashboard, null)
-
-        winManager = this.getSystemService(WINDOW_SERVICE) as WindowManager
-        winParam = WindowManager.LayoutParams()
-        winManager?.defaultDisplay?.getMetrics(displayMetrics)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            winParam!!.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-        } else {
-            winParam!!.type = WindowManager.LayoutParams.TYPE_PHONE
-        }
-
-        winParam!!.width = WindowManager.LayoutParams.WRAP_CONTENT
-        winParam!!.height = WindowManager.LayoutParams.WRAP_CONTENT
-        winParam!!.x = displayMetrics!!.widthPixels / 2
-        winParam!!.y = displayMetrics!!.widthPixels / 1
-        winParam!!.gravity = (Gravity.TOP or Gravity.LEFT)
-        winParam!!.format = PixelFormat.RGBA_8888
-        winParam!!.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-        winManager?.addView(touchIcon, winParam)
-        bindingPopup = PopupWindowDashboardBinding.bind(popUpDashBoard!!)
-        bindingTouch = IconTouchBinding.bind(touchIcon!!)
-
-
-        popUp = (displayMetrics?.widthPixels)?.times(0.75)?.let { it1 ->
-            (displayMetrics?.heightPixels)?.times(0.35)?.let { it2 ->
-                PopupWindow(
-                    popUpDashBoard, it1.toInt(),
-                    it2.toInt()
-                )
-            }
-        }
-        popUp?.setOnDismissListener {
-            Toast.makeText(cntx, "ahahaha", Toast.LENGTH_SHORT).show()
-        }
-        popUp?.isFocusable = true
-        popUp?.isTouchable = true
-        touchIcon!!.setOnClickListener {
-            val bluetoothMm = cntx?.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-            bFlag = bluetoothMm.adapter.isEnabled
-            updateUi()
-            utilObj = Utils()
-            bindingPopup.atouchFavouriteDashboard.visibility = View.GONE
-            bindingPopup.atouchSettingDashboard.visibility = View.GONE
-            bindingPopup.atouchMainDashboard.visibility = View.VISIBLE
-
-            winParam!!.x = (displayMetrics!!.widthPixels / 2)
-            winParam!!.y = (displayMetrics!!.heightPixels / 2)
-            winManager?.updateViewLayout(touchIcon, winParam)
-            popUp?.showAtLocation(touchIcon, Gravity.CENTER, 0, 0)
-
-        }
-        touchIcon?.setOnTouchListener { _, event ->
-            movingCounter++
-
-            if (event?.action == MotionEvent.ACTION_DOWN) {
-                isMoving = false
-                //flagAnimation = false
-                Log.e("aServiceKey", "Reached in down")
-            }
-            if (event?.action == MotionEvent.ACTION_UP) {
-                Log.e("aServiceKey", "Reached in up")
-                movingCounter = 0
-//                if (flagAnimation)
-//                    setAssitiveTouchViewAlign()
-
-            }
-            if (event?.action == MotionEvent.ACTION_MOVE) {
-                if (movingCounter > 10) {
-//                    flagAnimation = true
-                    Log.e("aServiceKey", "Reached in move")
-                    isMoving = true
-                    winParam!!.x = (event.getRawX() - touchIcon!!.measuredWidth / 2).toInt()
-                    winParam!!.y = (event.getRawY() - touchIcon!!.measuredHeight / 2 - 75).toInt()
-                    winManager?.updateViewLayout(touchIcon, winParam)
-                }
-            }
-            return@setOnTouchListener isMoving
-        }
-        val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        cameraManager.registerTorchCallback(torchCallback, null)
-
-        clickMethods()
     }
+
+
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun utilsCaller(code: String) {
@@ -483,7 +492,6 @@ class ForgService : Service() {
         }
         /////
         bindingPopup.aFavFirst.setOnClickListener {
-            Toast.makeText(cntx,spat.getString("fav1","gggg").toString(),Toast.LENGTH_SHORT).show()
             if (spat.getString("fav1","nil")!="nil"){
                 val obj1: ResolveInfo = gson.fromJson(spat.getString("fav1","nil"), ResolveInfo::class.java)
                 val intent = packageManager.getLaunchIntentForPackage(obj1.activityInfo.packageName)
@@ -499,6 +507,234 @@ class ForgService : Service() {
             popUp?.dismiss()
 
         }
+
+        bindingPopup.aFavSecond.setOnClickListener {
+            if (spat.getString("fav2","nil")!="nil"){
+                val obj1: ResolveInfo = gson.fromJson(spat.getString("fav2","nil"), ResolveInfo::class.java)
+                val intent = packageManager.getLaunchIntentForPackage(obj1.activityInfo.packageName)
+                intent?.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+            }
+            else{
+                val intent = Intent(this, AddNewAppActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                intent.putExtra("code", "fav2")
+                startActivity(intent)
+            }
+            popUp?.dismiss()
+
+        }
+
+        bindingPopup.aFavThird.setOnClickListener {
+            if (spat.getString("fav3","nil")!="nil"){
+                val obj1: ResolveInfo = gson.fromJson(spat.getString("fav3","nil"), ResolveInfo::class.java)
+                val intent = packageManager.getLaunchIntentForPackage(obj1.activityInfo.packageName)
+                intent?.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+            }
+            else{
+                val intent = Intent(this, AddNewAppActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                intent.putExtra("code", "fav3")
+                startActivity(intent)
+            }
+            popUp?.dismiss()
+
+        }
+
+        bindingPopup.aFavFourth.setOnClickListener {
+            if (spat.getString("fav4","nil")!="nil"){
+                val obj1: ResolveInfo = gson.fromJson(spat.getString("fav4","nil"), ResolveInfo::class.java)
+                val intent = packageManager.getLaunchIntentForPackage(obj1.activityInfo.packageName)
+                intent?.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+            }
+            else{
+                val intent = Intent(this, AddNewAppActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                intent.putExtra("code", "fav4")
+                startActivity(intent)
+            }
+            popUp?.dismiss()
+
+        }
+
+        bindingPopup.aFavFifth.setOnClickListener {
+            if (spat.getString("fav5","nil")!="nil"){
+                val obj1: ResolveInfo = gson.fromJson(spat.getString("fav5","nil"), ResolveInfo::class.java)
+                val intent = packageManager.getLaunchIntentForPackage(obj1.activityInfo.packageName)
+                intent?.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+            }
+            else{
+                val intent = Intent(this, AddNewAppActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                intent.putExtra("code", "fav5")
+                startActivity(intent)
+            }
+            popUp?.dismiss()
+
+        }
+
+        bindingPopup.aFavSixth.setOnClickListener {
+            if (spat.getString("fav6","nil")!="nil"){
+                val obj1: ResolveInfo = gson.fromJson(spat.getString("fav6","nil"), ResolveInfo::class.java)
+                val intent = packageManager.getLaunchIntentForPackage(obj1.activityInfo.packageName)
+                intent?.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+            }
+            else{
+                val intent = Intent(this, AddNewAppActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                intent.putExtra("code", "fav6")
+                startActivity(intent)
+            }
+            popUp?.dismiss()
+
+        }
+
+        bindingPopup.aFavSeventh.setOnClickListener {
+            if (spat.getString("fav7","nil")!="nil"){
+                val obj1: ResolveInfo = gson.fromJson(spat.getString("fav7","nil"), ResolveInfo::class.java)
+                val intent = packageManager.getLaunchIntentForPackage(obj1.activityInfo.packageName)
+                intent?.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+            }
+            else{
+                val intent = Intent(this, AddNewAppActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                intent.putExtra("code", "fav7")
+                startActivity(intent)
+            }
+            popUp?.dismiss()
+
+        }
+
+        bindingPopup.aFavEight.setOnClickListener {
+            if (spat.getString("fav8","nil")!="nil"){
+                val obj1: ResolveInfo = gson.fromJson(spat.getString("fav8","nil"), ResolveInfo::class.java)
+                val intent = packageManager.getLaunchIntentForPackage(obj1.activityInfo.packageName)
+                intent?.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+            }
+            else{
+                val intent = Intent(this, AddNewAppActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                intent.putExtra("code", "fav8")
+                startActivity(intent)
+            }
+            popUp?.dismiss()
+
+        }
+
+        //////////////
+
+        bindingPopup.aFavFirst.setOnLongClickListener {
+            val spat = this.getSharedPreferences(
+                "spat", Context.MODE_PRIVATE
+            )
+            val pusher:SharedPreferences.Editor=spat.edit()
+            pusher.putString("fav1","nil")
+            pusher.commit()
+            pusher.apply()
+
+            bindingPopup.aFavFirstText.text = ""
+            bindingPopup.aFavFirstImg.setImageDrawable(this.resources.getDrawable(R.drawable.a_app_box))
+            return@setOnLongClickListener true
+        }
+        bindingPopup.aFavSecond.setOnLongClickListener {
+            val spat = this.getSharedPreferences(
+                "spat", Context.MODE_PRIVATE
+            )
+            val pusher:SharedPreferences.Editor=spat.edit()
+            pusher.putString("fav2","nil")
+            pusher.commit()
+            pusher.apply()
+
+            bindingPopup.aFavSecondText.text = ""
+            bindingPopup.aFavSecondImg.setImageDrawable(this.resources.getDrawable(R.drawable.a_app_box))
+            return@setOnLongClickListener true
+        }
+        bindingPopup.aFavThird.setOnLongClickListener {
+            val spat = this.getSharedPreferences(
+                "spat", Context.MODE_PRIVATE
+            )
+            val pusher:SharedPreferences.Editor=spat.edit()
+            pusher.putString("fav3","nil")
+            pusher.commit()
+            pusher.apply()
+
+            bindingPopup.aFavThirdText.text = ""
+            bindingPopup.aFavThirdImg.setImageDrawable(this.resources.getDrawable(R.drawable.a_app_box))
+            return@setOnLongClickListener true
+        }
+        bindingPopup.aFavFourth.setOnLongClickListener {
+            val spat = this.getSharedPreferences(
+                "spat", Context.MODE_PRIVATE
+            )
+            val pusher:SharedPreferences.Editor=spat.edit()
+            pusher.putString("fav4","nil")
+            pusher.commit()
+            pusher.apply()
+
+            bindingPopup.aFavFourthText.text = ""
+            bindingPopup.aFavFourthImg.setImageDrawable(this.resources.getDrawable(R.drawable.a_app_box))
+            return@setOnLongClickListener true
+        }
+        bindingPopup.aFavFifth.setOnLongClickListener {
+            val spat = this.getSharedPreferences(
+                "spat", Context.MODE_PRIVATE
+            )
+            val pusher:SharedPreferences.Editor=spat.edit()
+            pusher.putString("fav5","nil")
+            pusher.commit()
+            pusher.apply()
+
+            bindingPopup.aFavFifthText.text = ""
+            bindingPopup.aFavFifthImg.setImageDrawable(this.resources.getDrawable(R.drawable.a_app_box))
+            return@setOnLongClickListener true
+        }
+        bindingPopup.aFavSixth.setOnLongClickListener {
+            val spat = this.getSharedPreferences(
+                "spat", Context.MODE_PRIVATE
+            )
+            val pusher:SharedPreferences.Editor=spat.edit()
+            pusher.putString("fav6","nil")
+            pusher.commit()
+            pusher.apply()
+
+            bindingPopup.aFavSixthText.text = ""
+            bindingPopup.aFavSixthImg.setImageDrawable(this.resources.getDrawable(R.drawable.a_app_box))
+            return@setOnLongClickListener true
+        }
+        bindingPopup.aFavSeventh.setOnLongClickListener {
+            val spat = this.getSharedPreferences(
+                "spat", Context.MODE_PRIVATE
+            )
+            val pusher:SharedPreferences.Editor=spat.edit()
+            pusher.putString("fav7","nil")
+            pusher.commit()
+            pusher.apply()
+
+            bindingPopup.aFavSeventhText.text = ""
+            bindingPopup.aFavSeventhImg.setImageDrawable(this.resources.getDrawable(R.drawable.a_app_box))
+            return@setOnLongClickListener true
+        }
+        bindingPopup.aFavEight.setOnLongClickListener {
+            val spat = this.getSharedPreferences(
+                "spat", Context.MODE_PRIVATE
+            )
+            val pusher:SharedPreferences.Editor=spat.edit()
+            pusher.putString("fav8","nil")
+            pusher.commit()
+            pusher.apply()
+
+            bindingPopup.aFavEightText.text = ""
+            bindingPopup.aFavEightImg.setImageDrawable(this.resources.getDrawable(R.drawable.a_app_box))
+            return@setOnLongClickListener true
+        }
+
+
 
     }
 

@@ -25,7 +25,7 @@ class AddNewAppActivity : AppCompatActivity() {
 
         val mainIntent = Intent(Intent.ACTION_MAIN, null)
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-        val packages: List<ResolveInfo> = packageManager.queryIntentActivities(mainIntent,0)
+        val packages: List<ResolveInfo> = this.packageManager.queryIntentActivities(mainIntent,0)
         binding.recyc.layoutManager= GridLayoutManager(this,4)
         val spat = this.getSharedPreferences(
             "spat", Context.MODE_PRIVATE

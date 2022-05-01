@@ -26,7 +26,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         startData()
 
-
+        binding.switch1.textOff="HAHA"
+        binding.switch1.textOn="gggg"
+        binding.switch1.th
         binding.switch1.setOnCheckedChangeListener { btn, b ->
             if (b){
                 if (!isServiceRunning(ForgService::class.java)){
