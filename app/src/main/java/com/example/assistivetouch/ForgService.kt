@@ -72,11 +72,16 @@ class ForgService : Service() {
     override fun onBind(p0: Intent?): IBinder? {
         return null
     }
+    override fun onDestroy() {
+        super.onDestroy()
+        mNM?.cancel(159)
+        winManager?.removeView(touchIcon)
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.getStringExtra("word")=="open"){
-            winParam!!.x = (displayMetrics!!.widthPixels / 2)
-            winParam!!.y = (displayMetrics!!.heightPixels / 2)
+            winParam!!.x = (displayMetrics!!.widthPixels / 2 - touchIcon!!.width/2)
+            winParam!!.y = (displayMetrics!!.heightPixels / 2 -touchIcon!!.height/2)
             winManager?.updateViewLayout(touchIcon, winParam)
             popUp?.showAtLocation(touchIcon, Gravity.CENTER, 0, 0)
         }
@@ -425,6 +430,18 @@ class ForgService : Service() {
         val spat = this.getSharedPreferences(
             "spat", Context.MODE_PRIVATE
         )
+
+        bindingPopup.settingBack.setOnClickListener {
+            bindingPopup.atouchFavouriteDashboard.visibility = View.GONE
+            bindingPopup.atouchSettingDashboard.visibility = View.GONE
+            bindingPopup.atouchMainDashboard.visibility = View.VISIBLE
+        }
+        bindingPopup.aFavBack.setOnClickListener {
+            bindingPopup.atouchFavouriteDashboard.visibility = View.GONE
+            bindingPopup.atouchSettingDashboard.visibility = View.GONE
+            bindingPopup.atouchMainDashboard.visibility = View.VISIBLE
+        }
+
         bindingPopup.main1.setOnClickListener {
             spat.getString("main1", "none")?.let { it1 -> utilsCaller(it1) }
             updateUi()
@@ -738,6 +755,7 @@ class ForgService : Service() {
 
     }
 
+
     @RequiresApi(Build.VERSION_CODES.P)
     public fun updateUi() {
         val spat = this.getSharedPreferences(
@@ -936,12 +954,28 @@ class ForgService : Service() {
         }
 
         fun lock() {
-            var deviceManger =
-                cntx?.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-            deviceManger.lockNow()
+            popUp?.dismiss()
+            var dpm: DevicePolicyManager= cntx?.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            var mDeviceAdminSample= ComponentName(cntx!!, AdminReciver::class.java)
+
+            if (dpm.isAdminActive(mDeviceAdminSample)){
+                var deviceManger =
+                    cntx?.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+                deviceManger.lockNow()
+            }
+            else{
+             //   Runtime.getRuntime().exec("dpm set-device-admin --user 0 com.mydeviceadmin/.AdminReciver")
+                val intent = Intent(cntx,MainActivity::class.java)
+                intent.putExtra("code",true)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                cntx?.startActivity(intent)
+            }
+
         }
 
         fun wifi() {
+            popUp?.dismiss()
+
             val astvTchIntent = Intent(Settings.ACTION_WIFI_SETTINGS)
             astvTchIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             cntx?.startActivity(astvTchIntent)

@@ -15,6 +15,7 @@
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/activity_edit_icon.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/activity_main.xml" value="0.3905996758508914" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/activity_permission.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/activity_privacy_policy.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/activity_setting.xml" value="0.19010416666666666" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/controls_cstmz_pop.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/fragment_device_admin.xml" value="0.20416666666666666" />
@@ -22,11 +23,15 @@
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/fragment_edit_main.xml" value="0.19010416666666666" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/fragment_edit_setting.xml" value="0.19010416666666666" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/fragment_notification.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/header_v.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/icon_touch.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/item_all_apps.xml" value="0.1859375" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/popup_window_dashboard.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/screen_splash.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/layout/view_with_drawer.xml" value="0.18796296296296297" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/menu/side_menu.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/xml/admin_options_list.xml" value="0.1" />
+        <entry key="..\:/Users/kazal/AndroidStudioProjects/AssistiveTouch/app/src/main/res/xml/lock_admin.xml" value="0.20416666666666666" />
       </map>
     </option>
   </component>

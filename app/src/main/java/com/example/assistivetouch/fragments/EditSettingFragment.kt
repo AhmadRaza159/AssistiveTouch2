@@ -236,10 +236,10 @@ class EditSettingFragment : Fragment() {
                 return resources.getDrawable(R.drawable.setting)
             }
             "none" -> {
-                return resources.getDrawable(R.drawable.none)
+                return resources.getDrawable(R.drawable.snon)
             }
             else -> {
-                return resources.getDrawable(R.drawable.none)
+                return resources.getDrawable(R.drawable.snon)
             }
         }
     }

@@ -2,10 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_cont"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:background="@drawable/main_bg">
+    android:background="@drawable/main_bg"
+    tools:context=".MainActivity">
 
     <RelativeLayout
         android:id="@+id/relativeLayout"
@@ -20,7 +21,10 @@
             android:id="@+id/main_screen_menu"
             android:layout_width="24dp"
             android:layout_height="match_parent"
-            android:layout_margin="22dp"
+            android:layout_marginStart="22dp"
+            android:layout_marginTop="22dp"
+            android:layout_marginEnd="22dp"
+            android:layout_marginBottom="22dp"
             android:src="@drawable/menu" />
 
         <TextView
@@ -38,26 +42,64 @@
         android:id="@+id/relativeLayout2"
         android:layout_width="match_parent"
         android:layout_height="150dp"
-        android:layout_marginTop="20dp"
         android:layout_marginHorizontal="30dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/control_bg"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/relativeLayout">
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switch1"
+        <RelativeLayout
+            android:id="@+id/b1b"
+            android:layout_width="160dp"
+            android:layout_marginTop="10dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:minHeight="20dp"
+                android:thumb="@drawable/toggle_boll"
+                app:switchMinWidth="160dp"
+                app:track="@drawable/toggle_switch" />
+
+            <TextView
+                android:id="@+id/txt_dct"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginHorizontal="10dp"
+                android:text="DEACTIVATED"
+                android:textColor="@color/white"
+                android:textSize="16dp" />
+
+            <TextView
+                android:id="@+id/txt_act"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginHorizontal="20dp"
+                android:text="ACTIVATED"
+                android:textColor="@color/black"
+                android:textSize="16dp"
+                android:visibility="gone" />
+
+        </RelativeLayout>
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_margin="20dp"
-            app:switchMinWidth="130dp"
-            android:minHeight="50dp"
-
-            android:thumb="@drawable/toggle_boll"
-            app:track="@drawable/toggle_switch" />
+            android:text="Swipe or Click to Activate or Deactivate"
+            android:textColor="@color/black"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/b1b"
+            android:layout_marginVertical="20dp"/>
     </RelativeLayout>
-
 
 
     <RelativeLayout
@@ -65,12 +107,13 @@
         android:layout_height="0dp"
         android:layout_marginTop="80dp"
         android:background="@drawable/tools_bg"
+        android:paddingVertical="30dp"
+        android:paddingStart="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:paddingStart="20dp"
-        android:paddingVertical="30dp"
-        app:layout_constraintTop_toBottomOf="@+id/relativeLayout2" >
+        app:layout_constraintTop_toBottomOf="@+id/relativeLayout2">
+
         <RelativeLayout
             android:id="@+id/edit_apps_button"
             android:layout_width="match_parent"
@@ -115,12 +158,13 @@
                     android:textColor="#404040"
                     android:textSize="12dp" />
             </LinearLayout>
+
             <ImageView
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_centerVertical="true"
                 android:layout_alignParentEnd="true"
-                android:src="@drawable/ic_baseline_keyboard_arrow_right_24"/>
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
         </RelativeLayout>
 
