@@ -36,6 +36,9 @@ class EditSettingFragment : Fragment() {
         chooseActionDialog=Dialog(requireContext())
         chooseActionDialog?.setContentView(dBinding.root)
         chooseActionDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dBinding.cancelDialog.setOnClickListener {
+            chooseActionDialog?.dismiss()
+        }
         initializeView()
         buttonClicker()
 

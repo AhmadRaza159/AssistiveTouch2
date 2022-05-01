@@ -7,9 +7,13 @@ import android.content.SharedPreferences
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.CompoundButton
+import android.widget.RadioButton
 import android.widget.SeekBar
 import androidx.annotation.RequiresApi
+import com.example.assistivetouch.ads.AddsClass
 import com.example.assistivetouch.databinding.ActivitySettingBinding
+import com.google.android.ads.nativetemplates.TemplateView
 
 class SettingActivity : AppCompatActivity() {
     private lateinit var binding:ActivitySettingBinding
@@ -23,6 +27,39 @@ class SettingActivity : AppCompatActivity() {
             "spat", Context.MODE_PRIVATE
         )
         val editor: SharedPreferences.Editor = spat.edit()
+        loadAd()
+        binding.radS.setOnCheckedChangeListener(object : CompoundButton.OnCheckedChangeListener{
+            override fun onCheckedChanged(p0: CompoundButton?, p1: Boolean) {
+                if (p1){
+                    editor.putInt("speed",1)
+                    editor.apply()
+                    editor.commit()
+                }
+            }
+
+        })
+        binding.radN.setOnCheckedChangeListener(object : CompoundButton.OnCheckedChangeListener{
+            override fun onCheckedChanged(p0: CompoundButton?, p1: Boolean) {
+                if (p1){
+                    editor.putInt("speed",2)
+                    editor.apply()
+                    editor.commit()
+                }
+            }
+
+        })
+        binding.radQ.setOnCheckedChangeListener(object : CompoundButton.OnCheckedChangeListener{
+            override fun onCheckedChanged(p0: CompoundButton?, p1: Boolean) {
+                if (p1){
+                    editor.putInt("speed",3)
+                    editor.apply()
+                    editor.commit()
+                }
+            }
+
+        })
+
+
         binding.iconSizeSeekbar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
             @RequiresApi(Build.VERSION_CODES.O)
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
@@ -119,5 +156,19 @@ class SettingActivity : AppCompatActivity() {
         binding.iconSizeValue.text=(spat.getInt("size",0)).toString()
         binding.iconOpValue.text=(spat.getInt("op",0)).toString()
         binding.iconOpSeekbar.progress=spat.getInt("op",0)
+        if (spat.getInt("speed",2)==1){
+            binding.radS.isChecked=true
+        }
+        else if (spat.getInt("speed",2)==2){
+            binding.radN.isChecked=true
+        }
+        else if (spat.getInt("speed",2)==3){
+            binding.radQ.isChecked=true
+        }
+    }
+    private fun loadAd(){
+        var tmplate: TemplateView =findViewById(R.id.native_ad)
+        var adClas: AddsClass = AddsClass(this)
+        adClas.load_Native_Ad(tmplate)
     }
 }

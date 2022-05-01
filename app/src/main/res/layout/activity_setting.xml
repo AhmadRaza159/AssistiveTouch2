@@ -162,6 +162,7 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardView4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="10dp"
@@ -204,7 +205,6 @@
                     android:textStyle="bold" />
 
 
-
             </RelativeLayout>
 
             <LinearLayout
@@ -213,39 +213,57 @@
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginVertical="10dp"
                 android:background="@drawable/setting_bg">
-            <RadioGroup
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:orientation="horizontal">
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Smooth"
-                    android:textSize="14dp"
 
-                    android:layout_marginHorizontal="15dp"
-                    android:textStyle="bold"
-                    android:textColor="@color/purple_200"/>
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:textSize="14dp"
-                    android:layout_height="wrap_content"
-                    android:text="Normal"
-                    android:textStyle="bold"
-                    android:layout_marginHorizontal="15dp"
-                    android:textColor="@color/purple_200"/>
-                <RadioButton
-                    android:layout_marginHorizontal="15dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14dp"
-                    android:textStyle="bold"
-                    android:text="Quick"
-                    android:textColor="@color/purple_200"/>
-            </RadioGroup>
+                <RadioGroup
+                    android:id="@+id/radG"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/rad_s"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="15dp"
+                        android:text="Smooth"
+                        android:textColor="@color/purple_200"
+                        android:textSize="14dp"
+                        android:textStyle="bold" />
+
+                    <RadioButton
+                        android:id="@+id/rad_n"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="15dp"
+                        android:text="Normal"
+                        android:textColor="@color/purple_200"
+                        android:textSize="14dp"
+                        android:textStyle="bold" />
+
+                    <RadioButton
+                        android:id="@+id/rad_q"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="15dp"
+                        android:text="Quick"
+                        android:textColor="@color/purple_200"
+                        android:textSize="14dp"
+                        android:textStyle="bold" />
+                </RadioGroup>
 
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
+    <com.google.android.ads.nativetemplates.TemplateView
+        android:id="@+id/native_ad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        app:gnt_template_type="@layout/gnt_small_template_view"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

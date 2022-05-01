@@ -8,3 +8,5 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Assistive Touch"
 include ':app'
+include ':nativetemplates'
+

@@ -26,6 +26,8 @@ import android.provider.Settings
 import android.telephony.TelephonyManager
 import android.util.DisplayMetrics
 import android.view.*
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.Toast
@@ -61,6 +63,11 @@ class ForgService : Service() {
     private var winParam: WindowManager.LayoutParams? = null
     private var movingCounter = 0
 
+    private var lastX:Int=0
+    private var lastY:Int=0
+    private var lastW:Int=0
+    private var lastH:Int=0
+
     private var isMoving = false
     lateinit var bindingTouch: IconTouchBinding
     lateinit var bindingPopup: PopupWindowDashboardBinding
@@ -80,9 +87,22 @@ class ForgService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.getStringExtra("word")=="open"){
-            winParam!!.x = (displayMetrics!!.widthPixels / 2 - touchIcon!!.width/2)
-            winParam!!.y = (displayMetrics!!.heightPixels / 2 -touchIcon!!.height/2)
+            lastX = winParam!!.x
+            lastY = winParam!!.y
+            lastW= touchIcon?.width!!
+            lastH=touchIcon?.height!!
+            touchIcon?.alpha = 0F
+
+            winParam!!.x = (displayMetrics!!.widthPixels / 2 - popUp!!.width/2)
+            winParam!!.y = (displayMetrics!!.heightPixels / 2 -popUp!!.height/2)
+            startMagic()
+            val layoutParams = LinearLayout.LayoutParams(
+                popUp?.width!!,
+                popUp?.height!!
+            )
+            bindingTouch.touchIconTouch.layoutParams = layoutParams
             winManager?.updateViewLayout(touchIcon, winParam)
+
             popUp?.showAtLocation(touchIcon, Gravity.CENTER, 0, 0)
         }
         checkIcon()
@@ -131,7 +151,7 @@ class ForgService : Service() {
         // Set the info for the views that show in the notification panel.
 
         val notification: Notification = Notification.Builder(this, "1")
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // the status icon
+            .setSmallIcon(R.drawable.logo) // the status icon
             .setWhen(System.currentTimeMillis()) // the time stamp
             .setContentTitle("Assistive Touch") // the label of the entry
             .setContentIntent(notiIntent) // The intent to send when the entry is clicked
@@ -155,8 +175,8 @@ class ForgService : Service() {
 
         winParam!!.width = WindowManager.LayoutParams.WRAP_CONTENT
         winParam!!.height = WindowManager.LayoutParams.WRAP_CONTENT
-        winParam!!.x = displayMetrics!!.widthPixels / 2
-        winParam!!.y = displayMetrics!!.widthPixels / 1
+        winParam!!.x = displayMetrics!!.widthPixels
+        winParam!!.y = displayMetrics!!.widthPixels
         winParam!!.gravity = (Gravity.TOP or Gravity.LEFT)
         winParam!!.format = PixelFormat.RGBA_8888
         winParam!!.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
@@ -174,11 +194,27 @@ class ForgService : Service() {
             }
         }
         popUp?.setOnDismissListener {
-            Toast.makeText(cntx, "ahahaha", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(cntx, "ahahaha", Toast.LENGTH_SHORT).show()
+            winParam!!.x = lastX
+            winParam!!.y = lastY
+            winManager?.updateViewLayout(touchIcon, winParam)
+            val layoutParams = LinearLayout.LayoutParams(
+                lastW,
+                lastH
+            )
+            bindingTouch.touchIconTouch.layoutParams = layoutParams
+            winManager?.updateViewLayout(touchIcon, winParam)
+            touchIcon?.alpha=1F
+            //touchIcon?.visibility=View.VISIBLE
         }
         popUp?.isFocusable = true
         popUp?.isTouchable = true
         touchIcon!!.setOnClickListener {
+            lastX = winParam!!.x
+            lastY = winParam!!.y
+            lastW= touchIcon?.width!!
+            lastH=touchIcon?.height!!
+            touchIcon?.alpha = 0F
             val bluetoothMm = cntx?.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
             bFlag = bluetoothMm.adapter.isEnabled
             updateUi()
@@ -187,9 +223,16 @@ class ForgService : Service() {
             bindingPopup.atouchSettingDashboard.visibility = View.GONE
             bindingPopup.atouchMainDashboard.visibility = View.VISIBLE
 
-            winParam!!.x = (displayMetrics!!.widthPixels / 2 - touchIcon!!.width/2)
-            winParam!!.y = (displayMetrics!!.heightPixels / 2 -touchIcon!!.height/2)
+            winParam!!.x = (displayMetrics!!.widthPixels / 2 - popUp!!.width/2)
+            winParam!!.y = (displayMetrics!!.heightPixels / 2 -popUp!!.height/2)
+            startMagic()
+            val layoutParams = LinearLayout.LayoutParams(
+                popUp?.width!!,
+                popUp?.height!!
+            )
+            bindingTouch.touchIconTouch.layoutParams = layoutParams
             winManager?.updateViewLayout(touchIcon, winParam)
+
             popUp?.showAtLocation(touchIcon, Gravity.CENTER, 0, 0)
 
         }
@@ -199,19 +242,14 @@ class ForgService : Service() {
             if (event?.action == MotionEvent.ACTION_DOWN) {
                 isMoving = false
                 //flagAnimation = false
-                Log.e("aServiceKey", "Reached in down")
             }
             if (event?.action == MotionEvent.ACTION_UP) {
-                Log.e("aServiceKey", "Reached in up")
                 movingCounter = 0
-//                if (flagAnimation)
-//                    setAssitiveTouchViewAlign()
+
 
             }
             if (event?.action == MotionEvent.ACTION_MOVE) {
                 if (movingCounter > 10) {
-//                    flagAnimation = true
-                    Log.e("aServiceKey", "Reached in move")
                     isMoving = true
                     winParam!!.x = (event.getRawX() - touchIcon!!.measuredWidth / 2).toInt()
                     winParam!!.y = (event.getRawY() - touchIcon!!.measuredHeight / 2 - 75).toInt()
@@ -366,8 +404,29 @@ class ForgService : Service() {
         }
 
     }
+    fun startMagic(){
+        val a: Animation =
+            AnimationUtils.loadAnimation(this, R.anim.zoom_out)
+        a.duration=300
+          popUp?.contentView?.startAnimation(a)
+        val b: Animation =
+            AnimationUtils.loadAnimation(this, R.anim.zoom_in)
+        b.duration=300
+        popUp?.contentView?.startAnimation(b)
+    }
+    fun dashboardMagig(){
+        val a: Animation =
+            AnimationUtils.loadAnimation(this, R.anim.zoom_out)
+        a.duration=300
+        bindingPopup.theMainParent.startAnimation(a)
 
-
+      //  popUp?.contentView?.startAnimation(a)
+        val b: Animation =
+            AnimationUtils.loadAnimation(this, R.anim.zoom_in)
+        b.duration=300
+        bindingPopup.theMainParent.startAnimation(b)
+        //popUp?.contentView?.startAnimation(b)
+    }
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun utilsCaller(code: String) {
@@ -409,11 +468,13 @@ class ForgService : Service() {
                 utilObj.boost()
             }
             "fav" -> {
+                dashboardMagig()
                 bindingPopup.atouchFavouriteDashboard.visibility = View.VISIBLE
                 bindingPopup.atouchSettingDashboard.visibility = View.GONE
                 bindingPopup.atouchMainDashboard.visibility = View.GONE
             }
             "setting" -> {
+                dashboardMagig()
                 bindingPopup.atouchFavouriteDashboard.visibility = View.GONE
                 bindingPopup.atouchSettingDashboard.visibility = View.VISIBLE
                 bindingPopup.atouchMainDashboard.visibility = View.GONE
@@ -432,11 +493,13 @@ class ForgService : Service() {
         )
 
         bindingPopup.settingBack.setOnClickListener {
+            dashboardMagig()
             bindingPopup.atouchFavouriteDashboard.visibility = View.GONE
             bindingPopup.atouchSettingDashboard.visibility = View.GONE
             bindingPopup.atouchMainDashboard.visibility = View.VISIBLE
         }
         bindingPopup.aFavBack.setOnClickListener {
+            dashboardMagig()
             bindingPopup.atouchFavouriteDashboard.visibility = View.GONE
             bindingPopup.atouchSettingDashboard.visibility = View.GONE
             bindingPopup.atouchMainDashboard.visibility = View.VISIBLE

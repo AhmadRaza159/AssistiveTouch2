@@ -60,6 +60,7 @@
 
                         <ImageView
                             android:id="@+id/ic_touch_01"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
                             android:layout_margin="15dp"
@@ -67,12 +68,14 @@
 
                         <ImageView
                             android:id="@+id/ic_touch_02"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
                             android:layout_margin="15dp"
                             android:src="@drawable/ic_touch_02" />
 
                         <ImageView
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:id="@+id/ic_touch_03"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
@@ -81,6 +84,7 @@
 
                         <ImageView
                             android:id="@+id/ic_touch_04"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
                             android:layout_margin="15dp"
@@ -98,12 +102,14 @@
                         <ImageView
                             android:id="@+id/ic_touch_05"
                             android:layout_width="60dp"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_height="60dp"
                             android:layout_margin="15dp"
                             android:src="@drawable/ic_touch_05" />
 
                         <ImageView
                             android:id="@+id/ic_touch_06"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
                             android:layout_margin="15dp"
@@ -111,6 +117,7 @@
 
                         <ImageView
                             android:id="@+id/ic_touch_07"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
                             android:layout_margin="15dp"
@@ -118,6 +125,7 @@
 
                         <ImageView
                             android:id="@+id/ic_touch_08"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
                             android:layout_margin="15dp"
@@ -134,6 +142,7 @@
 
                         <ImageView
                             android:id="@+id/ic_touch_09"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
                             android:layout_margin="15dp"
@@ -143,6 +152,7 @@
                             android:id="@+id/ic_touch_10"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_margin="15dp"
                             android:src="@drawable/ic_touch_10" />
 
@@ -150,12 +160,14 @@
                             android:id="@+id/ic_touch_11"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_margin="15dp"
                             android:src="@drawable/ic_touch_11" />
 
                         <ImageView
                             android:id="@+id/ic_touch_12"
                             android:layout_width="60dp"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_height="60dp"
                             android:layout_margin="15dp"
                             android:src="@drawable/ic_touch_12" />
@@ -173,6 +185,7 @@
                             android:id="@+id/ic_touch_13"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_margin="15dp"
                             android:src="@drawable/ic_touch_13" />
 
@@ -180,12 +193,14 @@
                             android:id="@+id/ic_touch_14"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_margin="15dp"
                             android:src="@drawable/ic_touch_14" />
 
                         <ImageView
                             android:id="@+id/ic_touch_15"
                             android:layout_width="60dp"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_height="60dp"
                             android:layout_margin="15dp"
                             android:src="@drawable/ic_touch_15" />
@@ -193,6 +208,7 @@
                         <ImageView
                             android:id="@+id/ic_touch_16"
                             android:layout_width="60dp"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_height="60dp"
                             android:layout_margin="15dp"
                             android:src="@drawable/ic_touch_16" />
@@ -209,6 +225,7 @@
                         <ImageView
                             android:id="@+id/ic_touch_17"
                             android:layout_width="60dp"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_height="60dp"
                             android:layout_margin="15dp"
                             android:src="@drawable/ic_touch_17" />
@@ -217,6 +234,7 @@
                             android:id="@+id/ic_touch_18"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_margin="15dp"
                             android:src="@drawable/ic_touch_18" />
 
@@ -224,6 +242,7 @@
                             android:id="@+id/ic_touch_19"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_margin="15dp"
                             android:src="@drawable/ic_touch_19" />
 
@@ -231,6 +250,7 @@
                             android:id="@+id/ic_touch_20"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_margin="15dp"
                             android:src="@drawable/ic_touch_20" />
 
@@ -246,12 +266,14 @@
                             android:id="@+id/ic_touch_21"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_margin="15dp"
                             android:src="@drawable/ic_touch_21" />
 
                         <ImageView
                             android:id="@+id/ic_touch_22"
                             android:layout_width="60dp"
+                            android:foreground="?selectableItemBackgroundBorderless"
                             android:layout_height="60dp"
                             android:layout_margin="15dp"
                             android:src="@drawable/ic_touch_22" />

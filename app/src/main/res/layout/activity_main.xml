@@ -23,6 +23,8 @@
             android:layout_height="match_parent"
             android:layout_marginStart="22dp"
             android:layout_marginTop="22dp"
+            android:foreground="?selectableItemBackgroundBorderless"
+
             android:layout_marginEnd="22dp"
             android:layout_marginBottom="22dp"
             android:src="@drawable/menu" />
@@ -117,6 +119,8 @@
         <RelativeLayout
             android:id="@+id/edit_apps_button"
             android:layout_width="match_parent"
+            android:foreground="?selectableItemBackgroundBorderless"
+
             android:layout_height="55dp">
 
             <androidx.cardview.widget.CardView
@@ -172,6 +176,8 @@
             android:id="@+id/edit_icons_button"
             android:layout_width="match_parent"
             android:layout_height="55dp"
+            android:foreground="?selectableItemBackgroundBorderless"
+
             android:layout_below="@+id/edit_apps_button"
             android:layout_marginTop="20dp">
 
@@ -227,6 +233,8 @@
             android:id="@+id/settings_button"
             android:layout_width="match_parent"
             android:layout_height="55dp"
+            android:foreground="?selectableItemBackgroundBorderless"
+
             android:layout_below="@+id/edit_icons_button"
             android:layout_marginTop="20dp">
 
@@ -276,6 +284,13 @@
                 android:layout_centerVertical="true"
                 android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
+
         </RelativeLayout>
+        <include layout="@layout/banner"
+            android:id="@+id/ad_view_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            />
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

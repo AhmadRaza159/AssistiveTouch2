@@ -11,6 +11,7 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
@@ -18,6 +19,7 @@ import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.example.assistivetouch.ads.AddsClass
 import com.example.assistivetouch.databinding.ActivityMainBinding
 import com.example.assistivetouch.databinding.ViewWithDrawerBinding
 import kotlin.system.exitProcess
@@ -25,6 +27,20 @@ import kotlin.system.exitProcess
 class MainActivity : AppCompatActivity() {
     private lateinit var binding2:ViewWithDrawerBinding
     private var code=false
+    lateinit var addClass: AddsClass
+
+    private fun loadad(){
+        addClass=AddsClass(this)
+        addClass.load_Interstitial()
+        var frameLayout=findViewById<FrameLayout>(R.id.ad_view_container)
+        addClass.load_banner(frameLayout)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadad()
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,13 +64,20 @@ class MainActivity : AppCompatActivity() {
         }
         animateNavigationDrawer()
         menuPoping()
+        if (!isServiceRunning(ForgService::class.java)){
+            binding2.mainView.switch1.isChecked=true
+            binding2.mainView.txtAct.visibility= View.VISIBLE
+            binding2.mainView.txtDct.visibility= View.GONE
+            val i = Intent(this, ForgService::class.java)
+            startForegroundService(i)
+        }
         binding2.mainView.switch1.setOnCheckedChangeListener { btn, b ->
             if (b){
+                addClass.intentFunctAdWithoutIntent()
                 binding2.mainView.txtAct.visibility= View.VISIBLE
                 binding2.mainView.txtDct.visibility= View.GONE
                 if (!isServiceRunning(ForgService::class.java)){
                     val i = Intent(this, ForgService::class.java)
-//                    .putExtra("EXTRA_RESULT_INTENT", attr.data)
                     startForegroundService(i)
                 }
 
@@ -67,13 +90,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding2.mainView.editAppsButton.setOnClickListener {
-            startActivity(Intent(this,EditAppsActivity::class.java))
+            addClass.intentFunctAdd(EditAppsActivity())
         }
         binding2.mainView.editIconsButton.setOnClickListener {
-            startActivity(Intent(this,EditIconActivity::class.java))
+            addClass.intentFunctAdd(EditIconActivity())
         }
         binding2.mainView.settingsButton.setOnClickListener {
-            startActivity(Intent(this,SettingActivity::class.java))
+            addClass.intentFunctAdd(SettingActivity())
         }
     }
 
@@ -110,6 +133,7 @@ class MainActivity : AppCompatActivity() {
         if (spat.all.isEmpty()){
             dataEntry.putInt("size",30)
             dataEntry.putInt("op",80)
+            dataEntry.putInt("speed",2)
 
             ///
             dataEntry.putString("fav1","nil")
@@ -129,7 +153,7 @@ class MainActivity : AppCompatActivity() {
             dataEntry.putString("main5","setting")
             dataEntry.putString("main6","none")
             dataEntry.putString("main7","home")
-            dataEntry.putString("main8","data")
+            dataEntry.putString("main8","none")
             ///
             dataEntry.putString("setting1","wifi")
             dataEntry.putString("setting2","bluetooth")
