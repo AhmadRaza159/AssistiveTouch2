@@ -92,15 +92,16 @@ class ForgService : Service() {
             lastW= touchIcon?.width!!
             lastH=touchIcon?.height!!
             touchIcon?.alpha = 0F
-
-            winParam!!.x = (displayMetrics!!.widthPixels / 2 - popUp!!.width/2)
-            winParam!!.y = (displayMetrics!!.heightPixels / 2 -popUp!!.height/2)
-            startMagic()
             val layoutParams = LinearLayout.LayoutParams(
                 popUp?.width!!,
                 popUp?.height!!
             )
             bindingTouch.touchIconTouch.layoutParams = layoutParams
+
+            winParam!!.x = (displayMetrics!!.widthPixels / 2 - touchIcon!!.width/2)
+            winParam!!.y = (displayMetrics!!.heightPixels / 2 -touchIcon!!.height/2)
+            startMagic()
+
             winManager?.updateViewLayout(touchIcon, winParam)
 
             popUp?.showAtLocation(touchIcon, Gravity.CENTER, 0, 0)
@@ -394,13 +395,23 @@ class ForgService : Service() {
         val spat = this.getSharedPreferences(
             "spat", Context.MODE_PRIVATE
         )
-        if (spat.getString(code,"nil")!="nil"){
-            json=spat.getString(code,"nil")!!
-            val obj: ResolveInfo = gson.fromJson(json, ResolveInfo::class.java)
-            return Pair(obj.loadLabel(packageManager),obj.loadIcon(packageManager))
-        }
-        else{
-            return Pair("",resources.getDrawable(R.drawable.a_app_box))
+        try {
+            if (spat.getString(code, "nil") != "nil") {
+                json = spat.getString(code, "nil")!!
+                val obj: ResolveInfo = gson.fromJson(json, ResolveInfo::class.java)
+                return Pair(obj.loadLabel(packageManager), obj.loadIcon(packageManager))
+            } else {
+                return Pair("", resources.getDrawable(R.drawable.a_app_box))
+            }
+        }catch (e:Exception){
+
+            val dataEntry: SharedPreferences.Editor=spat.edit()
+            dataEntry.putString(code,"nil")
+            dataEntry.commit()
+            dataEntry.apply()
+            Log.e("error_tag",e.toString())
+            Toast.makeText(cntx,"Error loading application",Toast.LENGTH_SHORT).show()
+            return Pair("", resources.getDrawable(R.drawable.a_app_box))
         }
 
     }
@@ -936,12 +947,26 @@ class ForgService : Service() {
                 }
             }
             "location" -> {
-                val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-                if (locationManager.isLocationEnabled) {
-                    return Pair(resources.getDrawable(R.drawable.location), "Location")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                    if (locationManager.isLocationEnabled) {
+                        return Pair(resources.getDrawable(R.drawable.location), "Location")
+                    } else {
+                        return Pair(resources.getDrawable(R.drawable.location_off), "Location")
+                    }
                 } else {
-                    return Pair(resources.getDrawable(R.drawable.location_off), "Location")
+                    // This was deprecated in API 28
+                    val mode = Settings.Secure.getInt(
+                        cntx?.getContentResolver(), Settings.Secure.LOCATION_MODE,
+                        Settings.Secure.LOCATION_MODE_OFF
+                    )
+                    if (mode!=Settings.Secure.LOCATION_MODE_OFF) {
+                        return Pair(resources.getDrawable(R.drawable.location), "Location")
+                    } else {
+                        return Pair(resources.getDrawable(R.drawable.location_off), "Location")
+                    }
                 }
+
             }
             "soundup" -> {
                 return Pair(resources.getDrawable(R.drawable.sound_up), "Sound Up")
@@ -1087,6 +1112,8 @@ class ForgService : Service() {
                 val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 cntx?.startActivity(intent)
+                popUp?.dismiss()
+
             }
         }
 
